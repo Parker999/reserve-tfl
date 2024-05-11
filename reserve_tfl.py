@@ -14,9 +14,9 @@ TOCK_USERNAME = "SET_YOUR_USER_NAME_HERE"
 TOCK_PASSWORD = "SET_YOUR_PASSWORD_HERE"
 
 # Set your specific reservation month and days
-RESERVATION_MONTH = 'November'
-RESERVATION_DAYS = ['23', '24', '25']
-RESERVATION_YEAR = '2021'
+RESERVATION_MONTH = 'May'
+RESERVATION_DAYS = ['13','14']
+RESERVATION_YEAR = '2024'
 RESERVATION_TIME_FORMAT = "%I:%M %p"
 
 # Set the time range for acceptable reservation times.
@@ -40,7 +40,7 @@ REFRESH_DELAY_MSEC = 500
 
 # Chrome extension configurations that are used with Luminati.io proxy.
 # Enable proxy to avoid getting IP potentially banned. This should be enabled only if the REFRESH_DELAY_MSEC
-# is extremely low (sub hundred) and NUM_THREADS > 1.
+# is extremely low (sub hundred) and NUM_THREADS > 1
 ENABLE_PROXY = False
 USER_DATA_DIR = '~/Library/Application Support/Google/Chrome'
 PROFILE_DIR = 'Default'
@@ -117,7 +117,7 @@ class ReserveTFL():
 
         for month in self.driver.find_elements(By.CSS_SELECTOR, "div.ConsumerCalendar-month"):
             header = month.find_element(By.CSS_SELECTOR, "div.ConsumerCalendar-monthHeading")
-            span = header.find_element(By.CSS_SELECTOR, "span.H1")
+            span = header.find_element(By.CSS_SELECTOR, "span")
             print("Encountered month", span.text)
 
             if RESERVATION_MONTH in span.text:
@@ -130,7 +130,7 @@ class ReserveTFL():
             return False
 
         for day in month_object.find_elements(By.CSS_SELECTOR, "button.ConsumerCalendar-day.is-in-month.is-available"):
-            span = day.find_element(By.CSS_SELECTOR, "span.B2")
+            span = day.find_element(By.CSS_SELECTOR, "span")
             print("Encountered day: " + span.text)
             if span.text in RESERVATION_DAYS:
                 print("Day %s found. Clicking button" % span.text)
@@ -139,15 +139,14 @@ class ReserveTFL():
                 if self.search_time():
                     print("Time found")
                     return True
+        print("button not licked ")
 
         return False
 
     def search_time(self):
-        for item in self.driver.find_elements(By.CSS_SELECTOR, "button.Consumer-resultsListItem.is-available"):
-            span = item.find_element(By.CSS_SELECTOR, "span.Consumer-resultsListItemTime")
-            span2 = span.find_element(By.CSS_SELECTOR, "span")
+        for item in self.driver.find_elements(By.CSS_SELECTOR, "div.Consumer-resultsListVertical"):
+            span2 = item.find_element(By.CSS_SELECTOR, "span.Consumer-resultsListItemTime")
             print("Encountered time", span2.text)
-
             available_time = datetime.strptime(span2.text, RESERVATION_TIME_FORMAT)
             if RESERVATION_TIME_MIN <= available_time <= RESERVATION_TIME_MAX:
                 print("Time %s found. Clicking button" % span2.text)
